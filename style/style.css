@@ -4,10 +4,11 @@ nav{
         width: 10%;
     }
 }
-#aqui{
-    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+.haber{
+    width: 330px;
 }
 .divImg {
+    cursor: pointer;
     width: 100%;
     height: 300px; /* Tamaño uniforme */
     display: flex;
@@ -33,11 +34,103 @@ nav{
     }
 }
 #inputBuscar{
-    width: 150px;
     padding: 3px 20px;
     border-radius: 50px;
     border:1px rgb(187, 187, 187) solid ;
 }
-#filtros{
-    border-left: 1px rgb(187, 187, 187) solid;
+
+.divImgP {
+    width: 100%;
+    height: 300px; /* Tamaño uniforme */
+    display: flex;
+    justify-content: center;
+    align-items: center; /* Fondo opcional */
+}
+.divImgP img {
+    width: 100%;
+    height: 100%;
+    border-radius: 5%;
+    object-fit: cover;
+    transition: transform 0.3s ease-in-out;
+}
+.divImgP:hover img{
+    transform: scale(1.05);
+}
+.divInfoP{
+    padding: 10px;
+    h6,h7{
+        color: orange;
+        font-size: 1em;
+    }
+}
+.navLinks{
+    cursor: default;
+    color: white;
+    &:hover{
+        color: rgba(0, 0, 255, 0.651);
+    }
+}
+
+#contenedorPersonaje{ 
+    width: 500px;
+    height: 600px;
+    padding: 10px;
+    border-radius: 5%;
+    display: flex;
+    justify-content: center;
+    background-image: url(../img/namek.webp);
+    align-items: center;
+    background-size: cover; /* Fondo opcional */
+}
+#contenedorPersonaje img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    transition: transform 0.3s ease-in-out;
+}
+
+
+.transformacionStyle{ 
+    width: 200px;
+    height: 300px;
+    padding: 10px;
+    border-radius: 5%;
+    display: flex;
+    justify-content: center;
+    text-align: center;
+    color: white;
+    background-color: black;
+    align-items: center;
+    background-size: cover; /* Fondo opcional */
+}
+.transformacionStyle img {
+    cursor: pointer;
+    max-width: 100%;
+    max-height: 90%;
+    object-fit: contain;
+    transition: transform 0.3s ease-in-out;
+}
+#transformaciones{
+    overflow-y: visible;
+    overflow-x: auto;
+}
+
+.lightbox {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    justify-content: center;
+    align-items: center;
+}
+
+/* Imagen dentro del Lightbox */
+.lightbox img {
+    max-width: 90%;
+    max-height: 90%;
+    border-radius: 10px;
+    background-color: black;
 }

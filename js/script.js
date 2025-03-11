@@ -1,55 +1,49 @@
+window.onload = ()=>{
+    localStorage.removeItem('abuscar');
+    inputBuscar.value = '';
+};
 const $ = {
-    containerPersonajes:document.getElementById('aqui'),
+    containerPersonajes: document.getElementById('aqui'),
     inputBuscar: document.getElementById('inputBuscar'),
-    inputOrderAToZ:document.getElementById('ordenarAZ'),
-}
-// Otro Ejemplo
-// Definimos la URL con los parámetros incluidos
-let pagina = 1;
-let personajes =[];
-function cargarPersonajes (page) {
-    let urldragon = `https://dragonball-api.com/api/characters?page=${page}&limit=58`;
-        // Configuración de la petición
-    const opciones = {
-        method: 'GET',  // Es una petición GET
-        headers: {
-            'accept': '*/*'  // Este es el header que pide el curl
-        }
-    };
-    const daticos = null ;
-    // Realizamos la petición con fetch
-    fetch(urldragon, opciones)
-        .then(response => {
-            // Comprobamos si la respuesta es correcta (status 200-299)
-            if (!response.ok) {
-                throw new Error(`Error HTTP: ${response.status}`);
-            }
-            // Convertimos la respuesta a JSON (el cuerpo de la respuesta)
-            return response.json();
-        })
-        .then(data => {
-            // Aquí ya tenemos la información en formato JavaScript (objeto o array)
-            console.log('Personajes:', data);
+    inputOrderAToZ: document.getElementById('ordenarAZ'),
+    btnCancelSearch: document.getElementById('btnCancelSearch'),
+    linkPersonajes: document.getElementById('linkPersonajes'),
+    linkPlanetas: document.getElementById('linkPlanetas'),
+    buttonsContainer:document.getElementById('buttonContainer'),
+};
 
-            data.items.forEach(element => {
-                personajes.push(element)
-                targetas(element)
-            });
-        })
-        .catch(error => {
-            // Capturamos cualquier error (problemas de red o de la API)
-            console.error('Error al obtener los personajes:', error.message);
-        })
-        .finally(() => {
-            console.log("Petición de dragon ball finalizada");
-        });
-
-}
-cargarPersonajes(pagina)
-console.log(personajes)
-let cont = 0;
+let urlPlanets = 'https://dragonball-api.com/api/planets?page=1&limit=20';
+let urlPersonajes = `https://dragonball-api.com/api/characters?page=${1}&limit=5`;
+let personajes = [];
+let planetas = [];
 let domtarjets = [];
-function targetas (objeto){
+
+// Función para cargar datos
+async function cargarDatos(url, tipo) {
+    try {
+        const response = await fetch(url, { method: 'GET', headers: { 'accept': '*/*' } });
+        if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
+
+        const data = await response.json();
+        console.log(`${tipo}:`, data);
+        if (tipo === 'Personajes') {
+            console.log(data.links)
+            personajes = data.items;
+            createButtonpages(data,data.meta.currentPage)
+            domtarjets = personajes.map(crearTarjeta)
+            printTarjets(domtarjets)
+        } else {
+            planetas = data.items;
+        }
+    } catch (error) {
+        console.error(`Error al obtener los ${tipo.toLowerCase()}:`, error.message);
+    }
+}
+cargarDatos(urlPersonajes, 'Personajes')
+cargarDatos(urlPlanets, 'Planetas')
+
+// Función para generar tarjetas
+function crearTarjeta(objeto) {
     let divPrincipal = document.createElement('div');
     let divImg = document.createElement('div');
     let divInfo = document.createElement('div');
@@ -65,6 +59,7 @@ function targetas (objeto){
 
     let imagen = document.createElement('img');
 
+
     nombrePersonaje.textContent = objeto.name;
     kiBase.textContent = 'Ki Base';
     kiTotal.textContent = 'Ki Maximo';
@@ -75,97 +70,140 @@ function targetas (objeto){
     bando.textContent=objeto.affiliation;
     imagen.src = objeto.image;
 
-    divPrincipal.classList.add('card','h-100','tarjetas');
-    divImg.classList.add('divImg');
-    divInfo.classList.add('divInfo');
+
+    if('isDestroyed' in objeto){
+        divImg.appendChild(imagen);
+        divInfo.appendChild(nombrePersonaje);
+        divPrincipal.appendChild(divImg);
+        divPrincipal.appendChild(divInfo);
 
 
-    
-    divImg.appendChild(imagen);
-    divInfo.appendChild(nombrePersonaje);
-    divInfo.appendChild(sexoRaza);
-    divInfo.appendChild(kiBase);
-    divInfo.appendChild(base);
-    divInfo.appendChild(kiTotal);
-    divInfo.appendChild(maximo);
-    divInfo.appendChild(equipo);
-    divInfo.appendChild(bando);
-    divPrincipal.appendChild(divImg);
-    divPrincipal.appendChild(divInfo);
-    domtarjets.push(divPrincipal);
-    printTarjets(domtarjets)
-}    
-function printTarjets(ta){
-    ta.forEach(t=>{
-        $.containerPersonajes.appendChild(t)
-    })
-};
-$.inputBuscar.addEventListener('input' , function(e){
-    utilidades.search(e.target.value)
-});
-$.inputOrderAToZ.addEventListener('input',function(e){
-    if($.inputOrderAToZ.checked){
-        utilidades.aToZ()
-        console.log('hola')
+        divPrincipal.classList.add('card','tarjetas','col-12','col-sm-6','col-md-4','col-xl-3','haber','m-4');
+        divImg.classList.add('divImgP');
+        divInfo.classList.add('divInfoP');
     }else{
-        printTarjets(domtarjets)
-    }
-})
 
-const utilidades = {
-    search(cual){
-        let filtro = cual.toLowerCase(); // Convertir el texto de búsqueda a minúsculas
+        divPrincipal.classList.add('card','tarjetas','col-12','col-sm-4','col-md-4','col-xl-3','haber','m-4');
+        divImg.classList.add('divImg');
+        divInfo.classList.add('divInfo');
 
-        domtarjets.forEach(tarjet => {
-            let nombre = tarjet.querySelector('h4').textContent.toLowerCase(); // Obtener el nombre del personaje en minúsculas
+        divImg.appendChild(imagen);
+        divInfo.appendChild(nombrePersonaje);
+        divInfo.appendChild(sexoRaza);
+        divInfo.appendChild(kiBase);
+        divInfo.appendChild(base);
+        divInfo.appendChild(kiTotal);
+        divInfo.appendChild(maximo);
+        divInfo.appendChild(equipo);
+        divInfo.appendChild(bando);
+        divPrincipal.appendChild(divImg);
+        divPrincipal.appendChild(divInfo);
+        divPrincipal.id = `${objeto.id}`
 
-            if (nombre.includes(filtro)) {
-                tarjet.style.display = ''; // Mostrar la tarjeta si coincide
-            } else {
-                tarjet.style.display = 'none'; // Ocultar la tarjeta si no coincide
-            }
-        });
-    },
-    aToZ(){
-        let copiaA = [...domtarjets].sort((a,b)=>{ //guardamos una copia del arreglo ordenado de a a la z con .sort
-            let nombreA = a.querySelector('h4').textContent.trim();
-            let nombreB = b.querySelector('h4').textContent.trim();
-            return nombreA.localeCompare(nombreB)
+        divPrincipal.addEventListener('click',(e)=>{
+            localStorage.setItem('abuscar',e.currentTarget.id);
+
+            window.location.href = "transformaciones.html"
         })
-        printTarjets(copiaA)
-    },
+
+    }
+    return divPrincipal;
 }
 
-// // Definimos el id del personaje que queremos consultar
-// const personajeId = 3;
+// Función para renderizar tarjetas
+function printTarjets(arr) {
+    $.containerPersonajes.innerHTML = '';
+    arr.forEach(t => $.containerPersonajes.appendChild(t));
+}
 
-// // Armamos la URL dinámica
-// const urlUnSolo = `https://dragonball-api.com/api/characters/${personajeId}`;
+// Eventos
+$.inputBuscar.addEventListener('input', function (e) {
+    utilidades.search(e.target.value);
+    $.btnCancelSearch.classList.toggle('d-none', e.target.value === '');
+});
 
-// // Configuración de la petición (GET con headers)
-// const opciones2 = {
-//     method: 'GET',
-//     headers: {
-//         'accept': '*/*'   // Esto es igual al curl original
-//     }
-// };
+$.inputOrderAToZ.addEventListener('input', function () {
+    if ($.inputOrderAToZ.checked) {
+        utilidades.aToZ();
+    } else {
+        printTarjets(domtarjets);
+    }
+});
 
-// // Realizamos la petición con fetch
-// fetch(urlUnSolo, opciones2)
-//     .then(response => {
-//         if (!response.ok) {
-//             throw new Error(`Error HTTP: ${response.status}`);
-//         }
-//         return response.json();  // Convertimos la respuesta a JSON
-//     })
-//     .then(data => {
-//         // Mostramos la información del personaje
-//         console.log('Personaje obtenido:', data);
-//     })
-//     .catch(error => {
-//         console.error('Error al obtener el personaje:', error.message);
-//     })
-//     .finally(() => {
-//         console.log("Petición de un solo dragon ball finalizada");
-//     });
+$.btnCancelSearch.addEventListener('click', () => {
+    $.inputBuscar.value = '';
+    utilidades.search('');
+    $.btnCancelSearch.classList.add('d-none');
+});
 
+$.linkPersonajes.addEventListener('click', () => {
+    domtarjets = personajes.map(crearTarjeta);
+    printTarjets(domtarjets);
+});
+
+$.linkPlanetas.addEventListener('click', () => {
+    domtarjets = planetas.map(crearTarjeta);
+    printTarjets(domtarjets);
+});
+
+const utilidades = {
+    search(filtro) {
+        let filtroLower = filtro.toLowerCase();
+        domtarjets.forEach(tarjet => {
+            let nombre = tarjet.querySelector('h4').textContent.toLowerCase();
+            tarjet.style.display = nombre.includes(filtroLower) ? '' : 'none';
+        });
+    },
+    aToZ() {
+        let ordenado = [...domtarjets].sort((a, b) => 
+            a.querySelector('h4').textContent.localeCompare(b.querySelector('h4').textContent)
+        );
+        printTarjets(ordenado);
+    },
+};
+function createButtonpages (objeto , current){
+    //para atras
+    $.buttonsContainer.textContent = '';
+    let previus = document.createElement('button');
+    previus.classList.add('btn')
+    let iconPrevius = document.createElement('i');
+    iconPrevius.classList.add('fa-solid', 'fa-chevron-left')
+    previus.appendChild(iconPrevius);
+    previus.addEventListener('click',()=>{
+        if(!objeto.links.previous==''){
+            urlPersonajes = objeto.links.previous
+            cargarDatos(urlPersonajes, 'Personajes')
+        }
+    })
+    $.buttonsContainer.appendChild(previus)
+
+    //numericos
+    for(let i=1 ; i<objeto.meta.totalPages+1;i++){
+        let buttonPage = document.createElement('button');
+        buttonPage.classList.add('btn')
+        buttonPage.textContent = i
+        if(buttonPage.textContent == current){
+            buttonPage.classList.add('btn-warning')
+        }
+        buttonPage.addEventListener('click',(e)=>{
+            urlPersonajes = `https://dragonball-api.com/api/characters?page=${e.target.textContent}&limit=5`
+            cargarDatos(urlPersonajes, 'Personajes')
+        })
+        $.buttonsContainer.appendChild(buttonPage);
+
+    }
+
+    //para adelante
+    let next = document.createElement('button');
+    next.classList.add('btn');
+    let iconNext = document.createElement('i');
+    iconNext.classList.add('fa-solid', 'fa-chevron-right')
+    next.appendChild(iconNext);
+    next.addEventListener('click',()=>{
+        if(!objeto.links.next == ''){
+            urlPersonajes = objeto.links.next
+            cargarDatos(urlPersonajes, 'Personajes')
+        }
+    })
+    $.buttonsContainer.appendChild(next)
+};
