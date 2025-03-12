@@ -149,14 +149,14 @@ $.btnCancelSearch.addEventListener('click', () => {
 $.linkPersonajes.addEventListener('click', () => {
     domtarjets = personajes.map(crearTarjeta);
     printTarjets(domtarjets);
-    buttonsContainer.classList.remove('d-none');
+    $.contenedorBtnGrande.classList.remove('d-none');
 
 });
 
 $.linkPlanetas.addEventListener('click', () => {
     domtarjets = planetas.map(crearTarjeta);
     printTarjets(domtarjets);
-    buttonsContainer.classList.add('d-none');
+    $.contenedorBtnGrande.classList.add('d-none');
 });
 
 const utilidades = {
