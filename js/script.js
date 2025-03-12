@@ -7,9 +7,11 @@ const $ = {
     inputBuscar: document.getElementById('inputBuscar'),
     inputOrderAToZ: document.getElementById('ordenarAZ'),
     btnCancelSearch: document.getElementById('btnCancelSearch'),
+    contenedorBtnGrande: document.getElementById('contenedorBotonesGrande'),
     linkPersonajes: document.getElementById('linkPersonajes'),
     linkPlanetas: document.getElementById('linkPlanetas'),
-    buttonsContainer:document.getElementById('buttonContainer'),
+    btnNext:document.getElementById('btnNext'),
+    btnPrevious:document.getElementById('btnPrevious'),
 };
 
 let urlPlanets = 'https://dragonball-api.com/api/planets?page=1&limit=20';
@@ -17,6 +19,7 @@ let urlPersonajes = `https://dragonball-api.com/api/characters?page=${1}&limit=5
 let personajes = [];
 let planetas = [];
 let domtarjets = [];
+let bandera = true ;
 
 // Función para cargar datos
 async function cargarDatos(url, tipo) {
@@ -29,13 +32,14 @@ async function cargarDatos(url, tipo) {
         if (tipo === 'Personajes') {
             console.log(data.links)
             personajes = data.items;
-            createButtonpages(data,data.meta.currentPage)
-            domtarjets = personajes.map(crearTarjeta)
+            createButtonpages(data,data.meta.currentPage);
+            domtarjets = personajes.map(crearTarjeta);
             printTarjets(domtarjets)
         } else {
             planetas = data.items;
         }
     } catch (error) {
+        console.log(error)
         console.error(`Error al obtener los ${tipo.toLowerCase()}:`, error.message);
     }
 }
@@ -100,11 +104,16 @@ function crearTarjeta(objeto) {
         divPrincipal.appendChild(divInfo);
         divPrincipal.id = `${objeto.id}`
 
-        divPrincipal.addEventListener('click',(e)=>{
-            localStorage.setItem('abuscar',e.currentTarget.id);
-
-            window.location.href = "transformaciones.html"
-        })
+        if(!$.containerPersonajes.dataset.evento){
+            $.containerPersonajes.addEventListener('click',(e)=>{
+                const tarjetaClick = e.target.closest('.tarjetas'); //busca el elemento mas cercado con la classe tarjeta
+                if (tarjetaClick && tarjetaClick.id) { 
+                    localStorage.setItem('abuscar', tarjetaClick.id);
+                    window.location.href = "transformaciones.html";
+                }
+            })
+            $.containerPersonajes.dataset.evento ="true";
+        }
 
     }
     return divPrincipal;
@@ -114,6 +123,7 @@ function crearTarjeta(objeto) {
 function printTarjets(arr) {
     $.containerPersonajes.innerHTML = '';
     arr.forEach(t => $.containerPersonajes.appendChild(t));
+
 }
 
 // Eventos
@@ -139,11 +149,14 @@ $.btnCancelSearch.addEventListener('click', () => {
 $.linkPersonajes.addEventListener('click', () => {
     domtarjets = personajes.map(crearTarjeta);
     printTarjets(domtarjets);
+    buttonsContainer.classList.remove('d-none');
+
 });
 
 $.linkPlanetas.addEventListener('click', () => {
     domtarjets = planetas.map(crearTarjeta);
     printTarjets(domtarjets);
+    buttonsContainer.classList.add('d-none');
 });
 
 const utilidades = {
@@ -162,8 +175,9 @@ const utilidades = {
     },
 };
 function createButtonpages (objeto , current){
+    let buttonsContainer = document.createElement('div');
     //para atras
-    $.buttonsContainer.textContent = '';
+    $.contenedorBtnGrande.innerHTML='';
     let previus = document.createElement('button');
     previus.classList.add('btn')
     let iconPrevius = document.createElement('i');
@@ -175,8 +189,7 @@ function createButtonpages (objeto , current){
             cargarDatos(urlPersonajes, 'Personajes')
         }
     })
-    $.buttonsContainer.appendChild(previus)
-
+    $.contenedorBtnGrande.appendChild(previus)
     //numericos
     for(let i=1 ; i<objeto.meta.totalPages+1;i++){
         let buttonPage = document.createElement('button');
@@ -185,13 +198,20 @@ function createButtonpages (objeto , current){
         if(buttonPage.textContent == current){
             buttonPage.classList.add('btn-warning')
         }
-        buttonPage.addEventListener('click',(e)=>{
-            urlPersonajes = `https://dragonball-api.com/api/characters?page=${e.target.textContent}&limit=5`
-            cargarDatos(urlPersonajes, 'Personajes')
-        })
-        $.buttonsContainer.appendChild(buttonPage);
+        buttonsContainer.appendChild(buttonPage);
 
     }
+    if (!buttonsContainer.dataset.evento) {
+        buttonsContainer.addEventListener('click', (e) => {
+            if (e.target.tagName === 'BUTTON') {
+                let page = e.target.textContent;
+                let urlPersonajes = `https://dragonball-api.com/api/characters?page=${page}&limit=5`;
+                cargarDatos(urlPersonajes, 'Personajes');
+            }
+        });
+        buttonsContainer.dataset.evento ="true";
+    }
+    $.contenedorBtnGrande.appendChild(buttonsContainer)
 
     //para adelante
     let next = document.createElement('button');
@@ -205,5 +225,5 @@ function createButtonpages (objeto , current){
             cargarDatos(urlPersonajes, 'Personajes')
         }
     })
-    $.buttonsContainer.appendChild(next)
+    $.contenedorBtnGrande.appendChild(next)
 };
